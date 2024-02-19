@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Каталог курсов</title>
+		<link rel="stylesheet" href="/static/courses.css" />
+  </head>
+  <body>
+    <nav>
+      <a href="/">Образовательный портал</a>
+      <a href="/courses">Каталог курсов</a>
+      {% if 'user_id' in session %}
+      <a href="/dashboard">Личный кабинет</a>
+      <a href="/logout">Выйти</a>
+      {% else %}
+      <a href="/register">Зарегистрироваться</a>
+      <a href="/login">Войти</a>
+      {% endif %}
+    </nav>
+
+    <h2>Курсы</h2>
+    <form action="/courses" method="post">
+        <label for="filter_type">Выберите тип:</label>
+        <select name="type" id="filter_type">
+            <option value="all" {% if filter_type == 'all' %}selected{% endif %}>Все</option>
+            <option value="short" {% if filter_type == 'short' %}selected{% endif %}>Краткосрочные</option>
+            <option value="long" {% if filter_type == 'long' %}selected{% endif %}>Длительные</option>
+            <option value="intensive" {% if filter_type == 'intensive' %}selected{% endif %}>Интенсивные</option>
+        </select>
+        <button type="submit">Применить фильтр</button>
+    </form>
+    
+    <p>
+      {% for course in courses %}
+      <li>
+        <a href="{{ url_for('view_course', course_title=course.title|replace(' ', '_')) }}">
+        <h3>
+            {{ course.title }}
+        </h3>
+        <h4>
+            {% if course.type == "short" %}
+                Краткосрочный
+            {% elif course.type == "long" %}
+                Длительный
+            {% elif course.type == "intensive" %}
+                Интенсивный
+            {% endif %}
+        </br>
+            {{ course.description }}
+          </h4>
+          <h3>
+            {% if course.price.replace(" ?", "") == "0,00" %}
+                Бесплатный
+            {% else %}
+                {{ course.price.replace("?", "")+"РУБ" }}
+            {% endif %}
+          </h3>
+          </a>
+      </li>
+      {% endfor %}
+    </p>
+    <label>
+      <p>2023</p>
+    </label>
+  </body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ course.title }}</title>
+		<link rel="stylesheet" href="/static/course.css" />
+	</head>
+	<body>
+		<nav>
+			<a href="/">Образовательный портал</a>
+			<a href="/courses">Каталог курсов</a>
+			{% if 'user_id' in session %}
+			<a href="/dashboard">Личный кабинет</a>
+			<a href="/logout">Выйти</a>
+			{% else %}
+			<a href="/register">Зарегистрироваться</a>
+			<a href="/login">Войти</a>
+			{% endif %}
+		</nav>
+
+		<div class="course-container">
+			<h2>{{ course.title }}</h2>
+			<h3>
+				Тип курса: {% if course.type == "short" %} Краткосрочный {% elif course.type == "long" %}
+				Длительный {% elif course.type == "intensive" %} Интенсивный {% endif %}
+			</h3>
+			<p>{{ course.description }}</p>
+			<p>
+				{% if course.price.replace(" ?", "") == "0,00" %} Бесплатный {% else %} {{
+				course.price.replace("?", "") + "РУБ" }} {% endif %}
+			</p>
+			<button class="btn btn-primary">Записаться</button>
+			<h3>Отзывы</h3>
+			<form
+				id="feedbackForm"
+				action="{{ url_for('add_feedback', course_title=course.title|replace(' ', '_')) }}"
+				method="post"
+			>
+				<textarea
+					id="feedbackText"
+					name="feedback_text"
+					rows="4"
+					cols="50"
+					resize="none"
+					required
+					placeholder="Введите ваш отзыв здесь"
+				></textarea>
+				<button type="submit" class="btn btn-secondary">Отправить отзыв</button>
+			</form>
+			<ul class="feedback-list">
+				{% for feedback in course.feedbacks %}
+				<li>
+					<p>{{ feedback.user.username}}</p>
+					<p>{{ feedback.text }}</p>
+					<p>{{ feedback.date.strftime('%Y.%m.%d %H:%M:%S') }}</p>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+
+		<script>
+			function submitFeedback() {
+				document.getElementById("feedbackForm").submit()
+			}
+		</script>
+	</body>
+</html>

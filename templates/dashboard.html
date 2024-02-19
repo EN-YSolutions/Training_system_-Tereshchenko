@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Личный кабинет</title>
+		<link rel="stylesheet" href="/static/course.css" />
+	</head>
+	<body>
+		<nav>
+			<a href="/">Образовательный портал</a>
+			<a href="/courses">Каталог курсов</a>
+			{% if 'user_id' in session %}
+			<a href="/dashboard">Личный кабинет</a>
+			<a href="/logout">Выйти</a>
+			{% else %}
+			<a href="/register">Зарегистрироваться</a>
+			<a href="/login">Войти</a>
+			{% endif %}
+		</nav>
+
+		<h2>Личный кабинет</h2>
+		<p>{{ username }}</p>
+	</body>
+</html>
