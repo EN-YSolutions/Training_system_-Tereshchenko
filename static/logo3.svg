@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_2" data-name="Слой 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 565.75 82.29">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: 0em;
+      }
+
+      .cls-2 {
+        letter-spacing: .08em;
+      }
+
+      .cls-3 {
+        fill: #fff;
+        font-family: RobotoMono-Bold, 'Roboto Mono';
+        font-size: 72.39px;
+        font-weight: 700;
+        stroke: #1d1d1b;
+        stroke-linejoin: round;
+        stroke-width: .75px;
+      }
+
+      .cls-4 {
+        letter-spacing: -.1em;
+      }
+    </style>
+  </defs>
+  <g id="_Слой_1-2" data-name="Слой 1">
+    <text class="cls-3" transform="translate(.38 62.3)"><tspan class="cls-2" x="0" y="0">en</tspan><tspan class="cls-4" x="97.74" y="0">//</tspan><tspan class="cls-1" x="170.14" y="0">solutions</tspan></text>
+  </g>
+</svg>

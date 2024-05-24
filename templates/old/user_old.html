@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ user.username }} – ОП</title>
+		<link rel="stylesheet" href="/static/course.css" />
+	</head>
+	<body>
+		{% include 'header.html' %}
+
+		<div class="user-container">
+			<h2>{{ user.name }}</h2>
+			<h2>@{{ user.username }}</h2>
+			{% if user.role == 'admin' %}
+			<h2>Администратор</h2>
+			{% endif %} {% if 'user_id' in session and session['user_id'] == user.id %}
+			<h2><a href="/dashboard">Настройки</a></h2>
+			{% endif %}
+		</div>
+
+		{% if user.role == 'teacher' %} {% include 'user_feedbacks.html' %} {% endif %}
+	</body>
+</html>

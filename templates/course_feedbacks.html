@@ -1,0 +1,39 @@
+<div class="container">
+	{% for feedback in course.feedbacks %}
+	<div class="row align-items-center mb-3">
+		<!-- Аватарка или цвет -->
+		<div class="col-auto">
+			{% if feedback.user.url is none %}
+			<div
+				class="rounded-circle text-center"
+				style="width: 65px; height: 65px; background-color: {{ feedback.user.color }}; color: #ffffff; font-size: 24px; line-height: 65px;"
+			>
+				<span style="user-select: none">{{ feedback.user.name|first|upper }}</span>
+			</div>
+			{% else %}
+			<img
+				src="{{ feedback.user.url }}"
+				alt=""
+				class="rounded-circle"
+				style="max-width: 65px; max-height: 65px"
+			/>
+			{% endif %}
+		</div>
+
+		<!-- Информация -->
+		<div class="col mt-auto">
+			<p>
+				<a href="/user/{{ feedback.user.username }}">{{ feedback.user.name }}</a> {{
+				feedback.date.strftime('%Y.%m.%d %H:%M:%S') }}
+			</p>
+			<p>{{ feedback.text }}</p>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+
+<style>
+	.no-select {
+		user-select: none;
+	}
+</style>

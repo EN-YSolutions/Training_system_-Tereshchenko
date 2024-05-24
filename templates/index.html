@@ -1,0 +1,499 @@
+{% extends 'main/base.html' %} {% block content %}
+<div class="container" style="max-width: 1440px">
+	<div>
+		<div class="row justify-content-start">
+			<div class="col-md-7 mt-5 mb-5 ml-4">
+				<h1 style="font-family: Roboto; font-size: 52px">
+					Изучай современные навыки </br>с нуля и становись профессионалом
+				</h1>
+				<a href="/catalog" class="btn btn-primary custom-btn mt-3 mb-3">
+					<span>Начать учиться бесплатно </span>
+				</a>
+			</div>
+
+			<div class="col-md-4"></div>
+		</div>
+	</div>
+
+	<div class="">
+		<h1 style="font-family:Roboto">Наши курсы</h1>
+		<div class="">
+			{% for row in range(0, random_courses|length//2) %}
+			<div class="row mt-4 mb-4">
+				{% for col in range(0, 2) %}
+				{% set index = row*2 + col %}
+				{% if index < random_courses|length %}
+				<div class="col-md-6 course-card">
+					<a href="{{ url_for('view_course', course_title=random_courses[index].title|replace(' ', '_')) }}" style="text-decoration: none; color: inherit;">
+						<div class="card" style="background: rgb(26, 26, 26); color: white; width: 650px; height: 150px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(8, 160, 16, 1)); transition: transform 0.3s, box-shadow 0.3s;">
+							<div class="ml-4 mt-3">
+								<p class="card-title" style="font-size: 32px; font-weight: bold; margin-bottom: 0px; overflow: hidden;">{{ random_courses[index].title }}</p>
+								<p style="font-size: 18px; overflow: hidden;">{{ random_courses[index].description }}</p>
+								{% set course_type = random_courses[index].type %}
+								<div style="display: flex; align-items: center;">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0,0,256,256">
+										<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
+											<g transform="scale(10.66667,10.66667)">
+												<path d="M12,2c-5.511,0 -10,4.489 -10,10c0,5.511 4.489,10 10,10c5.511,0 10,-4.489 10,-10c0,-5.511 -4.489,-10 -10,-10zM12,4c4.43012,0 8,3.56988 8,8c0,4.43012 -3.56988,8 -8,8c-4.43012,0 -8,-3.56988 -8,-8c0,-4.43012 3.56988,-8 8,-8zM11,6v6.41406l4.29297,4.29297l1.41406,-1.41406l-3.70703,-3.70703v-5.58594z"></path>
+											</g>
+										</g>
+									</svg>
+									<span style="font-family: Roboto; color: rgb(109, 109, 255); font-size: 12px; font-weight: 650; padding-top: 5px; padding-left: 5px; overflow: hidden;">
+										{% if course_type == 'short' %}
+											Краткосрочный
+										{% elif course_type == 'intensive' %}
+											Интенсивный
+										{% elif course_type == 'long' %}
+											Длительный
+										{% else %}
+											{{ course_type }}
+										{% endif %}
+									</span>
+								</div>
+								
+							</div>
+						</div>
+					</a>
+				</div>
+				{% endif %}
+				{% endfor %}
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	
+
+	<div class="mb-4">
+		<h1 style="font-family:Roboto">Отзывы о наших курсах</h1>
+		<div
+			id="carouselExampleControls"
+			class="carousel slide carousel-inner w-100"
+			data-ride="carousel"
+		>
+			{% for chunk in random_feedbacks|batch(4) %}
+			<div class="carousel-item {% if loop.first %}active{% endif %}">
+				<div class="row justify-content-center">
+					{% for feedback in chunk %}
+					<div class="no-select mt-4 mb-4 ml-2 mr-2">
+						<div class="card card-color" style="width: 20rem; height: 680px; overflow: hidden">
+							<div class="card-body">
+								<div class="d-flex align-items-center mb-3">
+									<!-- Иконка аватарки -->
+									{% if feedback.user.url is none %}
+									<div
+										class="rounded-circle text-center"
+										style="width: 40px; height: 40px; background-color: {{ feedback.user.color }}; color: #ffffff; font-size: 18px; line-height: 40px;"
+									>
+										<span class="no-select">{{ feedback.user.name|first|upper }}</span>
+									</div>
+									{% else %}
+									<img
+										src="{{ feedback.user.url }}"
+										alt=""
+										class="rounded-circle"
+										style="width: 40px; height: 40px"
+									/>
+									{% endif %}
+
+									<!-- Имя пользователя -->
+									<h6
+										class="card-title ml-3"
+										style="font-family: 'Roboto'; font-weight: 600; font-size: 18px; margin-bottom: 0"
+									>
+										{{ feedback.user.name.split()[0] }}
+									</h6>
+								</div>
+
+								<!-- Название курса -->
+								<h6
+									class="card-subtitle mb-2 text-muted"
+									style="font-family: 'Roboto'; font-size: 18px; font-weight: 400"
+								>
+									{{ feedback.course.title }}
+								</h6>
+
+								<!-- Текст отзыва -->
+								<p
+									class="card-text feedback-text"
+									style="font-family: 'Roboto'; font-size: 18px; font-weight: 400"
+								>
+									{{ feedback.text }}
+								</p>
+							</div>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			{% endfor %}
+
+			<a
+				class="carousel-control-prev"
+				href="#carouselExampleControls"
+				role="button"
+				data-slide="prev"
+			>
+				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			</a>
+			<a
+				class="carousel-control-next"
+				href="#carouselExampleControls"
+				role="button"
+				data-slide="next"
+			>
+				<span class="carousel-control-next-icon" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+	</div>
+
+
+	<div class="gradient-bg" style="border-radius: 20px">
+		<div class="mt-5 mb-5 ml-4 mr-4">
+			<div class="row">
+				<div class="col">
+				<h1 style="font-family: Roboto; font-size: 48px">
+					Если у вас остались </br>вопросы -<span style="font-family: Roboto; font-size: 48px; color: white"> мы поможем </span>
+				</h1>
+						<div style="font-family: Roboto; font-size: 28px; font-weight: 300;">
+							Наши консультанты помогут выбрать направление, расскажут о форматах и программах обучения
+						</div>
+				</div>
+				
+				<div class="col-md-5">
+					<form id="form-request" class="border rounded text-center form-container" style="background: white;">
+						<div class="mt-5 mb-5 mr-3 ml-3">
+							<div class="form-group">
+								<input type="text" class="form-control" id="exampleInputName" placeholder="Имя">
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control" id="exampleInputPhone" placeholder="+7 (999) 999-99-99">
+							</div>
+							<div class="form-group">
+								<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Эл. почта">
+							</div>
+							<button type="submit" class="btn btn-info w-100">Отправить заявку</button>
+							<div id="error-message" style="display:none; color:red; margin-top:10px;"></div>
+							<div id="success-message" style="display:none; color:green; margin-top:10px;"></div>
+						</div>
+					</form>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<script>
+    // Функция для форматирования номера телефона
+    function formatPhoneNumber(input) {
+        let phoneNumber = input.value.replace(/\D/g, ''); // Удаление всех нецифровых символов
+        let formattedPhoneNumber = '';
+
+        // Добавляем символы в зависимости от длины номера
+        if (phoneNumber.length > 0) {
+            formattedPhoneNumber += '+';
+            formattedPhoneNumber += phoneNumber.substring(0, 1); // Код страны
+        }
+        if (phoneNumber.length > 1) {
+            formattedPhoneNumber += ' (' + phoneNumber.substring(1, 4); // Открывающая скобка и следующие три цифры
+        }
+        if (phoneNumber.length > 4) {
+            formattedPhoneNumber += ') ' + phoneNumber.substring(4, 7); // Закрывающая скобка и следующие три цифры
+        }
+        if (phoneNumber.length > 7) {
+            formattedPhoneNumber += '-' + phoneNumber.substring(7, 9); // Дефис и следующие две цифры
+        }
+        if (phoneNumber.length > 9) {
+            formattedPhoneNumber += '-' + phoneNumber.substring(9, 11); // Дефис и последние две цифры
+        }
+
+        // Установка отформатированного значения обратно в поле ввода
+        input.value = formattedPhoneNumber;
+    }
+
+    // Получение элемента поля ввода номера телефона
+    const phoneInput = document.getElementById('exampleInputPhone');
+
+    // Добавление слушателя события input для поля ввода номера телефона
+    phoneInput.addEventListener('input', function(event) {
+        const startPosition = this.selectionStart;
+        formatPhoneNumber(this);
+        const delta = this.value.length - startPosition;
+        this.setSelectionRange(startPosition + delta, startPosition + delta);
+    });
+
+    // Функция для проверки корректности номера телефона
+    function validatePhone(phone) {
+        return /^\+\d{11}$/.test(phone); // Пример проверки: номер должен начинаться с плюса, затем 11 цифр
+    }
+
+    // Функция для проверки корректности адреса электронной почты
+    function validateEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Функция для валидации формы перед отправкой
+    function validateForm() {
+
+        const name = document.getElementById('exampleInputName').value.trim();
+        const phone = document.getElementById('exampleInputPhone').value.trim();
+        const email = document.getElementById('exampleInputEmail1').value.trim();
+
+        if (name === '') {
+            alert('Введите ваше имя');
+            return false;
+        }
+
+        if (!validatePhone(phone)) {
+            alert('Введите корректный номер телефона');
+            return false;
+        }
+
+        if (!validateEmail(email)) {
+            alert('Введите корректный адрес электронной почты');
+            return false;
+        }
+
+        return true; // Все проверки пройдены успешно
+    }
+
+	document.addEventListener('DOMContentLoaded', function () {
+		document.getElementById('form-request').addEventListener('submit', function (event) {
+			event.preventDefault(); // Предотвращаем обычное поведение формы
+	
+			// Получаем значения полей формы
+			var name = document.getElementById('exampleInputName').value.trim();
+			var phone = document.getElementById('exampleInputPhone').value.trim();
+			var email = document.getElementById('exampleInputEmail1').value.trim();
+	
+			// Скрываем предыдущие сообщения
+			document.getElementById('error-message').style.display = 'none';
+			document.getElementById('success-message').style.display = 'none';
+	
+			// Проверка заполненности полей
+			if (!name || !phone || !email) {
+				document.getElementById('error-message').innerText = 'Все поля должны быть заполнены';
+				document.getElementById('error-message').style.display = 'block';
+				return;
+			}
+	
+			// Формируем объект FormData
+			var formData = new FormData();
+			formData.append('name', name);
+			formData.append('phone', phone);
+			formData.append('email', email);
+	
+			// Отправляем запрос на сервер
+			fetch('/submit_request', {
+				method: 'POST',
+				body: formData
+			})
+			.then(response => {
+				if (!response.ok) {
+					throw new Error('Network response was not ok');
+				}
+				return response.json();
+			})
+			.then(data => {
+				// Обработка ответа от сервера
+				if (data.message) {
+					if (data.message.includes('успешно')) {
+						document.getElementById('success-message').innerText = data.message;
+						document.getElementById('success-message').style.display = 'block';
+					} else {
+						document.getElementById('error-message').innerText = data.message;
+						document.getElementById('error-message').style.display = 'block';
+					}
+				}
+			})
+			.catch(error => {
+				console.error('There has been a problem with your fetch operation:', error);
+				document.getElementById('error-message').innerText = data.message;
+				document.getElementById('error-message').style.display = 'block';
+			});
+		});
+	});
+</script>
+
+
+<style>
+	.no-select {
+		user-select: none;
+	}
+
+	/* Стили для различных цветов карточек */
+	.card-color {
+		background-color: #eaeaea;
+	}
+
+	/* Устанавливаем фиксированный размер для карусели */
+
+	/* Стили для текста отзыва */
+	.feedback-text {
+		line-height: 1.5;
+		overflow: hidden; /* Обрезаем текст, который не помещается */
+		position: relative; /* Устанавливаем позицию для псевдоэлемента */
+		height: 520px;
+		max-height: 520px; /* Максимальная высота текста, после которой будет эффект градиента */
+	}
+
+	/* Псевдоэлемент для градиента */
+	.feedback-text::after {
+		content: ""; /* Добавляем пустое содержимое для псевдоэлемента */
+		position: absolute; /* Позиционируем псевдоэлемент */
+		bottom: 0; /* Располагаем псевдоэлемент внизу */
+		left: 0;
+		right: 0;
+		height: 30px; /* Высота для градиента */
+		background: linear-gradient(transparent, #eaeaea); /* Градиент от прозрачного к белому */
+	}
+
+	.custom-btn {
+		font-family: Roboto;
+		font-size: 32px;
+		color: rgba(255, 208, 0, 1);
+		letter-spacing: 1px;
+		line-height: 48px;
+		border: 1px solid rgba(255, 208, 0, 1);
+		border-radius: 40px;
+		background: transparent;
+		transition: all 0.3s ease 0s;
+	}
+
+	.custom-btn:hover {
+		color: #fff;
+		background: rgba(255, 208, 0, 1);
+		border: 1px solid rgba(255, 208, 0, 1);
+	}
+
+    
+    .gradient-bg {
+        background: linear-gradient(to bottom right, #5ae0ee, #3abf45); /* Используем цвета вашего градиента */
+        padding: 20px; /* Добавляем отступы для контента */
+    }
+
+	.form-container {
+		background: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Горизонтальное смещение, вертикальное смещение, размытие, цвет */
+    }
+
+	.course-card .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+    }
+</style>
+
+{% endblock %}
+
+<div>
+	<h1>Наши курсы</h1>
+	<div class="bg-primary" style="padding-top: 10px">
+		{% for row in range(2) %}
+		<div class="row mt-4 mb-4 ml-2 mr-2">
+			{% for col in range(3) %}
+			<div class="col-md-4">
+				<div class="card" style="width: 300px; height: 250px;">
+					<img class="card-img-top" src="..." alt="" />
+					<div class="card-body">
+						<div class="col-auto">
+							<img
+								{%
+								if
+								random_courses[row*3+col].url
+								is
+								none
+								%}
+								src="/static/no_image.png"
+								{%
+								else
+								%}
+								src="{{ random_courses[row*3+col].url }}"
+								{%
+								endif
+								%}
+								alt=""
+								style="max-width: 100px; max-height: 100px"
+								class="rounded"
+							/>
+						</div>
+						<h5 class="card-title">{{ random_courses[row*3+col].title }}</h5>
+						<p class="card-text">{{ random_courses[row*3+col].description }}</p>
+						<a
+							href="{{ url_for('view_course', course_title=random_courses[row*3+col].title|replace(' ', '_')) }}"
+							class="btn btn-primary"
+							>{% if random_courses[row*3+col].price.replace(" ?", "") == "0,00" %} {{ "Бесплатно"
+							}} {% else %} {{ random_courses[row*3+col].price.replace(",00 ?", "")+" РУБ" }} {%
+							endif %}
+						</a>
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+</div>
+
+<div id="carouselExampleControls" class="carousel slide bg-danger" data-ride="carousel">
+	<div class="carousel-inner bg-info">
+		{% for chunk in random_feedbacks|batch(4) %}
+		<div class="carousel-item {% if loop.first %}active{% endif %}">
+			<div class="row">
+				{% for feedback in chunk %}
+				<div class="col-md-3 no-select bg-primary">
+					<div class="card card-color" style="width: 15rem; height: 450px; overflow: hidden">
+						<div class="card-body">
+							<div class="d-flex align-items-center mb-3">
+								<!-- Иконка аватарки -->
+								{% if feedback.user.url is none %}
+								<div
+									class="rounded-circle text-center"
+									style="width: 40px; height: 40px; background-color: {{ feedback.user.color }}; color: #ffffff; font-size: 18px; line-height: 40px;"
+								>
+									<span class="no-select">{{ feedback.user.name|first|upper }}</span>
+								</div>
+								{% else %}
+								<img
+									src="{{ feedback.user.url }}"
+									alt=""
+									class="rounded-circle"
+									style="width: 40px; height: 40px"
+								/>
+								{% endif %}
+
+								<!-- Имя пользователя -->
+								<h6 class="card-title ml-3" style="font-weight: 600; margin-bottom: 0">
+									{{ feedback.user.name.split()[0] }}
+								</h6>
+							</div>
+
+							<!-- Название курса -->
+							<h6 class="card-subtitle mb-2 text-muted">{{ feedback.course.title }}</h6>
+
+							<!-- Текст отзыва -->
+							<p class="card-text feedback-text" style="font-size: 15px">{{ feedback.text }}</p>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	<a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+		<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		<span class="sr-only">Previous</span>
+	</a>
+	<a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+		<span class="carousel-control-next-icon" aria-hidden="true"></span>
+		<span class="sr-only">Next</span>
+	</a>
+</div>
+
+.carousel-inner { height: 450px; /* Фиксированная высота карусели */ width: 1050px; /* Ширина
+карусели равна 100% */ overflow: hidden; /* Скрыть содержимое, которое выходит за пределы карусели
+*/ }

@@ -1,0 +1,52 @@
+{% extends 'main/base.html' %} {% block content %}
+
+<div class="my-5 container custom-font" style="max-width: 1440px">
+	<!-- Используем цикл для формирования строк с курсами -->
+	{% for chunk in courses_with_tests|batch(3) %}
+	<div class="row justify-content-between">
+		<!-- В каждой строке создаем три столбца для курсов -->
+		{% for course in chunk %}
+		<div class="col-md-4" style="padding-left: 15px; padding-right: 15px">
+			<div class="">
+				<div class="">
+					<div class="d-flex align-items-center">
+						<img src="{{ course.url }}" style="width: 80px; height: 80px" />
+						<h5 style="padding-left: 12px; font-size: 24px">{{ course.title }}</h5>
+					</div>
+					<div style="padding-left: 92px">
+						{% for test in course.tests %}
+						<div class="text-container">
+							<a href="{{ url_for('view_test', id=test.id) }}">{{ test.title }}</a>
+						</div>
+
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+	{% endfor %}
+</div>
+
+<style>
+	.custom-font {
+		font-family: "Roboto", sans-serif;
+	}
+
+	.text-container {
+		white-space: nowrap;
+		overflow: hidden;
+	}
+
+	.text-container a {
+		text-decoration: none;
+		font-weight: 410;
+		color: rgb(72, 72, 72);
+	}
+
+	.text-container a:hover {
+		text-decoration: none;
+	}
+</style>
+{% endblock %}

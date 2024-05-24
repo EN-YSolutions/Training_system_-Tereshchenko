@@ -1,0 +1,48 @@
+<div class="col-9">
+    {% for course in courses %}
+    <a style="text-decoration: none" href="{{ url_for('view_course', course_title=course.title|replace(' ', '_')) }}">
+        <div class="card" style="width: 50rem">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Картинка слева -->
+                    <div class="col-auto">
+                        {% if course.url is none %}
+                        <img src="/static/no_image.png" alt="" style="max-width: 100px; max-height: 100px;" class="rounded">
+                        {% else %}
+                        <img src="{{ course.url }}" alt="" style="width: 100px; height: 100px;" class="rounded">
+                        {% endif %}
+                    </div>
+                    <!-- Текст справа  -->
+                    <div class="col">
+                        <h5 class="card-title">{{ course.title }}</h5>
+
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            <a href="/user/{{ course.author.username }}">{{ course.author.name }}</a>
+                        </h6>
+                        <p class="card-text">{{ course.description }}</p>
+                    </div>
+                    <!-- Цена -->
+                    <div class="col">
+                        <h5 class="text-right">
+                            {% if course.price.replace(" ?", "") == "0,00" %} 
+                            <a style="text-decoration: none" href="{{ url_for('view_course', course_title=course.title|replace(' ', '_')) }}"> Бесплатно </a>
+                            {% else %}
+                            <a style="text-decoration: none" href="{{ url_for('view_course', course_title=course.title|replace(' ', '_')) }}"> {{ course.price.replace(",00 ?", "")+" РУБ" }} </a> 
+                            {% endif %}
+                        </h5>
+                    </div>
+                </div>
+                
+                <!--
+                <h6 class="card-subtitle mb-2 text-muted">
+                    {% if course.type == "short" %} Краткосрочный {% elif course.type == "long" %}
+                    Длительный {% elif course.type == "intensive" %} Интенсивный {% endif %}
+                </h6>
+                -->      
+            </div>
+        </div>
+    </a>
+    
+    </br>
+    {% endfor %}
+</div>

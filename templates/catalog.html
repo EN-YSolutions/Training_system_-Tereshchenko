@@ -1,0 +1,83 @@
+{% extends 'main/base.html' %} {% block content %}
+<div class="container" style="padding: 25px">
+	<div class="row">
+		<div class="col">
+			<!-- Форма фильтрации -->
+			<form id="filter-form" method="POST">
+				<div class="form-group">
+					<label for="min_price">Минимальная цена</label>
+					<input
+						type="number"
+						class="form-control"
+						id="min_price"
+						name="min_price"
+						value="{{ min_price }}"
+						min="0"
+						onchange="submitForm()"
+					/>
+				</div>
+				<div class="form-group">
+					<label for="max_price">Максимальная цена</label>
+					<input
+						type="number"
+						class="form-control"
+						id="max_price"
+						name="max_price"
+						value="{{ max_price }}"
+						min="0"
+						onchange="submitForm()"
+					/>
+				</div>
+				<button type="button" class="btn btn-success mb-2" onclick="freeButton()">Бесплатно</button>
+				<div class="form-group form-check">
+					<input type="checkbox" class="form-check-input" id="short" name="type" value="short" {% if
+					'short' in filter_types %}checked{% endif %} onchange="submitForm()" >
+					<label class="form-check-label" for="short">Краткосрочные</label>
+				</div>
+				<div class="form-group form-check">
+					<input type="checkbox" class="form-check-input" id="long" name="type" value="long" {% if
+					'long' in filter_types %}checked{% endif %} onchange="submitForm()" >
+					<label class="form-check-label" for="long">Длительные</label>
+				</div>
+				<div class="form-group form-check">
+					<input type="checkbox" class="form-check-input" id="intensive" name="type"
+					value="intensive"{% if 'intensive' in filter_types %}checked{% endif %}
+					onchange="submitForm()" >
+					<label class="form-check-label" for="intensive">Интенсивные</label>
+				</div>
+			</form>
+		</div>
+
+		<div id="filtered-content">{% include 'catalog_content.html'%}</div>
+	</div>
+</div>
+
+<script>
+	function submitForm() {
+		var formData = new FormData(document.getElementById("filter-form"))
+
+		fetch("/catalog", {
+			method: "POST",
+			body: formData,
+		})
+			.then((response) => response.text())
+			.then((data) => {
+				document.getElementById("filtered-content").innerHTML = data // Обновление только блока с контентом
+			})
+			.catch((error) => {
+				console.error("Ошибка:", error)
+			})
+	}
+
+	function freeButton() {
+		var min = document.querySelector("input[name='min_price']")
+		var max = document.querySelector("input[name='max_price']")
+		min.value = 0
+		max.value = 0
+		submitForm() // Вызов submitForm после изменения значений
+	}
+
+	document.getElementById("filter-form").addEventListener("change", submitForm)
+</script>
+
+{% endblock %}

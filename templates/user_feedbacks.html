@@ -1,0 +1,42 @@
+<div>
+	{% for feedback in course_feedbacks %}
+
+	<div class="row">
+		<!-- Иконка курса -->
+		<div class="col-auto">
+			{% if feedback[5] is none %}
+			<img
+				src="/static/no_image.png"
+				alt=""
+				style="max-width: 45px; max-height: 45px"
+				class="rounded"
+			/>
+			{% else %}
+			<img
+				src="{{ feedback[5] }}"
+				alt=""
+				style="max-width: 45px; max-height: 45px"
+				class="rounded"
+			/>
+			{% endif %}
+		</div>
+
+		<div class="col">
+			<!-- Название курса -->
+			<b>{{ feedback[2] }}</b>
+
+			<!-- Текст отзыва -->
+			{{ feedback[0] }}
+
+			<!-- Пользователь, оставший отзыв и в какой день -->
+			<div class="row">
+				<div class="col">
+					<a href="/user/{{feedback[3]}}">{{ feedback[4] }}</a> {{ feedback[1].strftime('%Y.%m.%d
+					%H:%M:%S') }}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% endfor %}
+</div>

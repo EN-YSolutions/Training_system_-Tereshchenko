@@ -1,0 +1,7 @@
+{% extends 'main/base.html' %} {% block content %}
+
+<div class="my-5 container" style="max-width: 1440px">
+	{% if chat %} {% elif admin %} {% elif dashboard %} {% endif %}
+</div>
+
+{% endblock %}

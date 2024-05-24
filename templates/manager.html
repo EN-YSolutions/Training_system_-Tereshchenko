@@ -1,0 +1,161 @@
+{% extends 'main/base.html' %} {% block content %}
+
+<div class="my-5 container" style="max-width: 1440px">
+	<h1 class="text-center" style="font-size: 64px; font-weight: bold">Кабинет менеджера</h1>
+
+	<form method="post" id="filter-form">
+		<div class="my-4 row justify-content-center text-center">
+			<div class="col-1">
+				<button type="button" class="filter-btn" data-status="all">Все</button>
+			</div>
+			<div class="col-2 ml-3 mr-2">
+				<button type="button" class="filter-btn" data-status="pending">В ожидании</button>
+			</div>
+			<div class="col-2 ml-2 mr-3">
+				<button type="button" class="filter-btn" data-status="processing">В обработке</button>
+			</div>
+			<div class="col-2">
+				<button type="button" class="filter-btn" data-status="processed">Завершённые</button>
+			</div>
+		</div>
+		<input type="hidden" name="status" id="status-input" value="all" />
+	</form>
+
+	<div class="table-responsive-md" style="height: 400px">
+		<table class="table" id="requests-table">
+			<thead>
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Дата</th>
+					<th scope="col">Телефон</th>
+					<th scope="col">Почта</th>
+					<th scope="col">Имя</th>
+					<th scope="col">Статус</th>
+					<th scope="col"></th>
+					<th scope="col"></th>
+				</tr>
+			</thead>
+			<tbody id="requests-body">
+				{% include 'manager_requests.html' %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		// Делегирование события для кнопок фильтров
+		document.querySelectorAll(".filter-btn").forEach((item) => {
+			item.addEventListener("click", (event) => {
+				document.querySelectorAll(".filter-btn").forEach((btn) => btn.classList.remove("active"))
+				item.classList.add("active")
+				const status = item.getAttribute("data-status")
+				document.getElementById("status-input").value = status
+
+				// Отправка формы с помощью AJAX
+				const formData = new FormData(document.getElementById("filter-form"))
+				fetch("/manager", {
+					method: "POST",
+					body: formData,
+				})
+					.then((response) => response.text())
+					.then((data) => {
+						document.getElementById("requests-body").innerHTML = data
+						attachEventListeners() // Повторно привязываем обработчики событий к новым элементам
+					})
+					.catch((error) => console.error("Error:", error))
+			})
+		})
+
+		function attachEventListeners() {
+			// Обработчик клика по кнопке "В обработку"
+			document.querySelectorAll(".btn.btn-warning").forEach((button) => {
+				button.addEventListener("click", function () {
+					const requestId = this.getAttribute("data-request-id")
+					fetch(`/manager/processing_request/${requestId}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					})
+						.then((response) => {
+							if (!response.ok) {
+								throw new Error("Ошибка при обновлении статуса")
+							}
+							return response.json()
+						})
+						.then((data) => {
+							// Обновляем статус заявки на странице
+							const row = document.getElementById(`row-${requestId}`)
+							row.querySelector(".status-cell").textContent = "В обработке"
+						})
+						.catch((error) => {
+							console.error("Ошибка:", error)
+						})
+				})
+			})
+
+			// Обработчик клика по кнопке "Завершить"
+			document.querySelectorAll(".btn.btn-success").forEach((button) => {
+				button.addEventListener("click", function () {
+					const requestId = this.getAttribute("data-request-id")
+					fetch(`/manager/processed_request/${requestId}`, {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+					})
+						.then((response) => {
+							if (!response.ok) {
+								throw new Error("Ошибка при обновлении статуса")
+							}
+							return response.json()
+						})
+						.then((data) => {
+							// Обновляем статус заявки на странице
+							const row = document.getElementById(`row-${requestId}`)
+							row.querySelector(".status-cell").textContent = "Завершено"
+							// Убираем кнопки
+							row.querySelector(".btn.btn-warning").remove()
+							row.querySelector(".btn.btn-success").remove()
+						})
+						.catch((error) => {
+							console.error("Ошибка:", error)
+						})
+				})
+			})
+		}
+
+		// Изначально привязываем обработчики событий
+		attachEventListeners()
+	})
+</script>
+
+<style>
+	.filter-btn {
+		background-color: #000000;
+		border: none;
+		border-radius: 10px;
+		color: white;
+		font-family: "Roboto";
+		font-size: 30px;
+		padding: 10px;
+		cursor: pointer;
+		transition: transform 0.2s;
+	}
+
+	.filter-btn:hover {
+		transform: translateY(-3px);
+	}
+
+	.filter-btn.active {
+		background-color: #0056b3;
+	}
+
+	.col-2 {
+		display: flex;
+		justify-content: center;
+	}
+</style>
+
+{% endblock %}
