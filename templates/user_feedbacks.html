@@ -1,9 +1,21 @@
-<div>
-	{% for feedback in course_feedbacks %}
+{% for feedback in course_feedbacks %}
+<div class="row border-top">
+	<div class="col-lg-11 mt-2 mb-2">
+		<!-- Название курса -->
+		<h6><b><a href="/course/{{feedback[2]}}">{{ feedback[2] }}</a></b></h6>
 
-	<div class="row">
-		<!-- Иконка курса -->
-		<div class="col-auto">
+		<!-- Текст отзыва -->
+		<h6>
+			{{ feedback[0] }}</h6>
+
+			<a href="/user/{{feedback[3]}}">{{ feedback[4] }}</a>
+			<span class="feedback-time" data-time="{{ feedback[1] }}">{{ feedback[1] }}</span>
+		</h6>
+	</div>
+
+	<!-- Иконка курса -->
+	<div class="col-md-1">
+		<div class="mt-3">
 			{% if feedback[5] is none %}
 			<img
 				src="/static/no_image.png"
@@ -12,31 +24,61 @@
 				class="rounded"
 			/>
 			{% else %}
-			<img
-				src="{{ feedback[5] }}"
-				alt=""
-				style="max-width: 45px; max-height: 45px"
-				class="rounded"
-			/>
+			<img src="{{ feedback[5] }}" alt="" style="max-width: 45px; max-height: 45px" class="rounded" />
 			{% endif %}
-		</div>
-
-		<div class="col">
-			<!-- Название курса -->
-			<b>{{ feedback[2] }}</b>
-
-			<!-- Текст отзыва -->
-			{{ feedback[0] }}
-
-			<!-- Пользователь, оставший отзыв и в какой день -->
-			<div class="row">
-				<div class="col">
-					<a href="/user/{{feedback[3]}}">{{ feedback[4] }}</a> {{ feedback[1].strftime('%Y.%m.%d
-					%H:%M:%S') }}
-				</div>
-			</div>
 		</div>
 	</div>
 
-	{% endfor %}
 </div>
+
+<script>
+    function getRussianPlural(number, one, two, five) {
+        let n = Math.abs(number);
+        n %= 100;
+        if (n >= 5 && n <= 20) {
+            return five;
+        }
+        n %= 10;
+        if (n === 1) {
+            return one;
+        }
+        if (n >= 2 && n <= 4) {
+            return two;
+        }
+        return five;
+    }
+
+    function timeAgo(dateString) {
+        const now = new Date();
+        const past = new Date(dateString);
+        const seconds = Math.floor((now - past) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(days / 365);
+
+        if (years > 0) {
+            return `${years} ${getRussianPlural(years, 'год назад', 'года назад', 'лет назад')}`;
+        } else if (months > 0) {
+            return `${months} ${getRussianPlural(months, 'месяц назад', 'месяца назад', 'месяцев назад')}`;
+        } else if (days > 0) {
+            return `${days} ${getRussianPlural(days, 'день назад', 'дня назад', 'дней назад')}`;
+        } else if (hours > 0) {
+            return `${hours} ${getRussianPlural(hours, 'час назад', 'часа назад', 'часов назад')}`;
+        } else if (minutes > 0) {
+            return `${minutes} ${getRussianPlural(minutes, 'минуту назад', 'минуты назад', 'минут назад')}`;
+        } else {
+            return `${seconds} ${getRussianPlural(seconds, 'секунду назад', 'секунды назад', 'секунд назад')}`;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const timeElements = document.querySelectorAll(".feedback-time");
+        timeElements.forEach(element => {
+            const timeString = element.getAttribute("data-time");
+            element.textContent = timeAgo(timeString);
+        });
+    });
+</script>
+{% endfor %}

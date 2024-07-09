@@ -1,19 +1,13 @@
-{% extends 'main/base.html' %} {% block content %} {% macro format_time_interval(value) %} {% set
-translations = { 'min': 'минут', 'h': 'час', 'd': {1: 'день', 'default': 'дня'} } %} {% set parts =
-value.split() %} {% set result = [] %} {% for i in range(0, parts|length, 2) %} {% set amount =
-parts[i]|int %} {% set unit = parts[i+1] %} {% if unit == 'd' and amount != 1 %} {% set
-unit_translation = translations[unit]['default'] %} {% else %} {% set unit_translation =
-translations[unit] %} {% endif %} {% set result = result + [amount ~ ' ' ~ unit_translation] %} {%
-endfor %} {{ result | join(' и ') }} {% endmacro %}
+{% extends 'main/base.html' %} {% block content %}
 
-<div class="my-5 container" style="max-width: 1440px">
+<div class="my-5 container fade-in" style="max-width: 1440px">
 	<div class="row" style="">
-		<div class="col-lg-3 bg-danger bg-danger d-flex flex-column align-items-center">
+		<div class="col-lg-3 d-flex flex-column align-items-center">
 			<div class="d-flex mt-4">
 				<img src="{{ test.course.url }}" style="width: 100px; height: 100px" />
 			</div>
 
-			<button class="btn btn-success mt-3" style="font-size: 24px">Начать тест</button>
+			<a href="/dashboard" class="btn btn-success mt-3" style="font-size: 24px"> Начать тест</a>
 			{% if not account %}
 			<div class="text-center mt-3">
 				<p>
@@ -23,27 +17,28 @@ endfor %} {{ result | join(' и ') }} {% endmacro %}
 			</div>
 			{% endif %}
 		</div>
-		<div class="col-lg-6 bg-primary mr-2 ml-2">
+		<div class="col-lg-6 mr-2 ml-2">
 			<div class="mt-4 ml-2">
 				<h2 style="color: rgb(99, 94, 108)">{{ test.course.title }}</h2>
 				<h5 class="mt-3" style="color: rgb(61, 51, 80)">{{ test.title }}</h5>
-				<p class="mt-3">Сложность:</p>
 
 				<div class="row text-center justify-content-center">
-					<div class="col bg-info">
-						{% if test.questions != None %}
-						<p>вопросы {{ test.questions }} {% endif %}</p>
+					<div class="col">
+						вопросы
+						<p>{% if test.questions != None %} {{ test.questions }} {% else %} ? {% endif %}</p>
 					</div>
-					<div class="col-lg bg-info" id="test-time" data-time="{{ test.time }}">
-						{% if test.time != None %} время на тест {{ test.time }} {% endif %}
+					<div class="col-lg" id="test-time" data-time="{{ test.time }}">
+						время на тест
+						<p>{% if test.time != None %} {{ test.time }} {% else %} ? {% endif %}</p>
 					</div>
-					<div class="col bg-info" id="test-interval" data-interval="{{ test.interval }}">
-						{% if test.interval != None %} интервал попыток {{ test.interval }} {% endif %}
+					<div class="col" id="test-interval" data-interval="{{ test.interval }}">
+						интервал попыток
+						<p>{% if test.interval != None %} {{ test.interval }} {% else %} ? {% endif %}</p>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="col bg-primary">
+		<div class="col">
 			<div class="mt-4">
 				{% if test.topics %}
 				<h2 style="color: rgb(0, 0, 0)">Темы тестирования</h2>
@@ -59,6 +54,11 @@ endfor %} {{ result | join(' и ') }} {% endmacro %}
 </div>
 
 <script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const container = document.querySelector(".container")
+		container.classList.add("show")
+	})
+
 	document.addEventListener("DOMContentLoaded", function () {
 		function formatTimeInterval(value) {
 			const translations = {
@@ -94,18 +94,27 @@ endfor %} {{ result | join(' и ') }} {% endmacro %}
 		const testTimeElement = document.getElementById("test-time")
 		const testTime = testTimeElement.getAttribute("data-time")
 		if (testTime && testTime !== "None") {
-			testTimeElement.innerHTML = `время на тест ${formatTimeInterval(testTime)}`
+			testTimeElement.innerHTML = `время на тест <p>${formatTimeInterval(testTime)}</p>`
 		}
 
 		const testIntervalElement = document.getElementById("test-interval")
 		const testInterval = testIntervalElement.getAttribute("data-interval")
 		if (testInterval && testInterval !== "None") {
-			testIntervalElement.innerHTML = `интервал попыток ${formatTimeInterval(testInterval)}`
+			testIntervalElement.innerHTML = `интервал попыток <p>${formatTimeInterval(testInterval)}</p>`
 		}
 	})
 </script>
 
 <style>
+	.fade-in {
+		opacity: 0;
+		transition: opacity 350ms ease-in;
+	}
+
+	.fade-in.show {
+		opacity: 1;
+	}
+
 	.container {
 		font-family: "Roboto";
 	}

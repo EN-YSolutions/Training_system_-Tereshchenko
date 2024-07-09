@@ -1,7 +1,7 @@
 import os, random
 from dotenv import load_dotenv
 # from routes import register_routes
-from models import db, User, Group, Group_Members, Course, Course_Feedback, Test, Request
+from models import db, User, Group, Group_Members, Course, Course_Feedback, Test, Request, Submission
 from sqlalchemy import event, func, cast, Numeric
 from flask import Flask, render_template, render_template_string, url_for, request, session, redirect, flash, abort, make_response, jsonify
 
@@ -124,17 +124,43 @@ def view_course(course_title):
     course = Course.query.filter(func.lower(Course.title) == course_title_lower.replace('_', ' ')).first()
 
     if not course:
-        return render_template('error.html', message='Course not found')
+        return render_template('404.html', message='Course not found')
+
 
     # Проверяем, присоединен ли пользователь к группе курса
     is_user_joined = False
+    is_user_submission = False
     if 'user_id' in session:
         user_id = session['user_id']
         group = Group.query.filter_by(course_id=course.id).first()
+        submission = Submission.query.filter_by(course_id=course.id, student_id=user_id).first()
         if group:
             is_user_joined = Group_Members.query.filter_by(student_id=user_id, group_id=group.id).first() is not None
 
-    return render_template('course.html', course=course, is_user_joined=is_user_joined)
+        if submission:
+            is_user_submission = True
+    print("user joined", is_user_joined)
+    print("user submission", is_user_submission)
+
+
+
+    return render_template('course.html', course=course, is_user_joined=is_user_joined, is_user_submission=is_user_submission)
+
+@app.post('/courses/<course_title>/purchase')
+def purchase(course_title):
+    # Получаем данные из POST-запроса
+    data = request.get_json()
+    course_id = data['course_id']
+    student_id = data['student_id']
+
+    # Создаем новую запись в таблице Submission
+    submission = Submission(course_id=course_id, student_id=student_id)
+    db.session.add(submission)
+    db.session.commit()
+
+    # Перенаправляем пользователя на страницу курса
+    return redirect(url_for('view_course', course_title=course_title))
+
 
 @app.route('/courses/<course_title>/subscribe', methods=['POST'])
 def subscribe(course_title):
@@ -253,6 +279,10 @@ def check_manager():
 
 @app.route('/manager', methods=['GET', 'POST'])
 def manager():
+    if request.method =='GET':
+        if not check_manager():
+            return redirect(url_for('login'))
+
     if request.method == 'POST':
         status = request.form.get('status')
 
@@ -266,7 +296,7 @@ def manager():
     return render_template('manager.html', requests=Request.query.order_by(Request.date.desc()).all())
 
 @app.post('/manager/processed_request/<request_id>')
-def manager_accept_request(request_id):
+def manager_processed_request(request_id):
     if not check_manager():
         return jsonify({'error': 'Доступ запрещен. Необходима роль менеджера.'}), 403
     
@@ -295,8 +325,8 @@ def register():
         return redirect(url_for('dashboard'))
     try:
         if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
+            username = request.form['username'].lower()
+            password = request.form['password'].lower()
             role = "student"
             name = request.form['name']
 
@@ -322,7 +352,7 @@ def register():
 def login():
     if 'user_id' in session:
         user_id = session['user_id']
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('index'))
 
     try:
         if request.method == 'POST':
@@ -347,7 +377,7 @@ def login():
                     session['role'] = 'student' 
 
                 flash('Успешная авторизация')
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('index'))
             else:
                 flash('Неправильный логин или пароль.')
     except Exception as e:
@@ -378,9 +408,9 @@ def dashboard():
     # Проверяем, есть ли id пользователя в сеансе
     if 'user_id' in session:
         username = session['user_username']
-        return render_template('dashboard.html', username=username)
+        return render_template('module.html', dashboard=True)
     else:
-        flash('You need to log in first.')
+        flash('Необходимо авторизоваться')
         return redirect(url_for('login'))
 
 
@@ -390,7 +420,23 @@ def chat():
 
 @app.get('/admin')
 def admin():
-    return render_template('module.html', admin=True)
+    # Проверяем, есть ли id пользователя в сеансе
+    if 'user_id' in session:
+        username = session['user_username']
+        return render_template('module.html', admin=True)
+    else:
+        flash('Необходимо авторизоваться')
+        return redirect(url_for('login'))
+    
+@app.get('/teacher')
+def teacher():
+    # Проверяем, есть ли id пользователя в сеансе
+    if 'user_id' in session:
+        username = session['user_username']
+        return render_template('module.html', teacher=True)
+    else:
+        flash('Необходимо авторизоваться')
+        return redirect(url_for('login'))
 
 # Обработка ошибок
 @app.errorhandler(404)
@@ -408,3 +454,9 @@ if __name__ == '__main__':
 
     app.run(debug=True)
     
+"""
+admin user2 123
+manager user4 222
+teacher ensolutionsteam:123
+
+"""

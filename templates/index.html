@@ -1,13 +1,15 @@
-{% extends 'main/base.html' %} {% block content %}
-<div class="container" style="max-width: 1440px">
+{% extends 'main/base.html' %} 
+
+{% block content %}
+<div class="container fade-in" style="max-width: 1440px">
 	<div>
 		<div class="row justify-content-start">
 			<div class="col-md-7 mt-5 mb-5 ml-4">
 				<h1 style="font-family: Roboto; font-size: 52px">
 					Изучай современные навыки </br>с нуля и становись профессионалом
 				</h1>
-				<a href="/catalog" class="btn btn-primary custom-btn mt-3 mb-3">
-					<span>Начать учиться бесплатно </span>
+				<a href="/catalog" class="btn btn-primary custom-btn mt-3 mb-3" style="width: 350px;">
+					<span>Начать учиться </span>
 				</a>
 			</div>
 
@@ -30,7 +32,7 @@
 								<p class="card-title" style="font-size: 32px; font-weight: bold; margin-bottom: 0px; overflow: hidden;">{{ random_courses[index].title }}</p>
 								<p style="font-size: 18px; overflow: hidden;">{{ random_courses[index].description }}</p>
 								{% set course_type = random_courses[index].type %}
-								<div style="display: flex; align-items: center;">
+								<div style="display: flex; align-items: center; position: absolute; bottom: 25px">
 									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0,0,256,256">
 										<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
 											<g transform="scale(10.66667,10.66667)">
@@ -38,7 +40,7 @@
 											</g>
 										</g>
 									</svg>
-									<span style="font-family: Roboto; color: rgb(109, 109, 255); font-size: 12px; font-weight: 650; padding-top: 5px; padding-left: 5px; overflow: hidden;">
+									<span style="font-family: Roboto; color: rgb(109, 109, 255); font-size: 12px; font-weight: 650; padding-left: 5px; overflow: hidden;">
 										{% if course_type == 'short' %}
 											Краткосрочный
 										{% elif course_type == 'intensive' %}
@@ -64,7 +66,7 @@
 	
 
 	<div class="mb-4">
-		<h1 style="font-family:Roboto">Отзывы о наших курсах</h1>
+		<h1 style="font-family:Roboto;">Отзывы о наших курсах</h1>
 		<div
 			id="carouselExampleControls"
 			class="carousel slide carousel-inner w-100"
@@ -188,6 +190,11 @@
 </div>
 
 <script>
+	document.addEventListener("DOMContentLoaded", function() {
+        const container = document.querySelector(".container");
+        container.classList.add("show");
+    });
+
     // Функция для форматирования номера телефона
     function formatPhoneNumber(input) {
         let phoneNumber = input.value.replace(/\D/g, ''); // Удаление всех нецифровых символов
@@ -321,6 +328,15 @@
 
 
 <style>
+	.fade-in {
+		opacity: 0;
+		transition: opacity 350ms ease-in;
+	}
+	
+	.fade-in.show {
+		opacity: 1;
+	}
+
 	.no-select {
 		user-select: none;
 	}

@@ -6,14 +6,16 @@
                 <div class="row">
                     <!-- Картинка слева -->
                     <div class="col-auto">
-                        {% if course.url is none %}
-                        <img src="/static/no_image.png" alt="" style="max-width: 100px; max-height: 100px;" class="rounded">
-                        {% else %}
-                        <img src="{{ course.url }}" alt="" style="width: 100px; height: 100px;" class="rounded">
-                        {% endif %}
+                        <div class="icon-container">
+                            {% if course.url is none %}
+                            <img src="/static/no_image.png" class="rounded icon">
+                            {% else %}
+                            <img src="{{ course.url }}" class="rounded icon">
+                            {% endif %}
+                        </div>
                     </div>
                     <!-- Текст справа  -->
-                    <div class="col">
+                    <div class="col-6">
                         <h5 class="card-title">{{ course.title }}</h5>
 
                         <h6 class="card-subtitle mb-2 text-muted">
@@ -46,3 +48,20 @@
     </br>
     {% endfor %}
 </div>
+
+<style>
+	.icon-container {
+		width: 100px;
+		height: 100px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		overflow: hidden;
+	}
+
+	.icon {
+        height: 100px;
+		max-width: 100%;
+		max-height: 100%;
+	}
+</style>

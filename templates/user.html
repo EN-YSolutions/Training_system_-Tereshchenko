@@ -1,39 +1,59 @@
 {% extends 'main/base.html' %} {% block content %}
-<div class="container">
-	{% if user.url is none %}
-	<div
-		class="rounded-circle text-center"
-		style="width: 150px; height: 150px; background-color: {{ user.color }}; color: #ffffff; font-size: 75px; line-height: 150px; border-radius: 50%; display: flex; justify-content: center; align-items: center;"
-	>
-		<span style="user-select: none">{{ user.name|first|upper }}</span>
+<div class="container" style="max-width: 1180px">
+	<div class="row">
+		<div class="col-3" style="height: 290px">
+			<div class="avatar">
+				{% if user.url is none %}
+				<div
+					class="rounded-circle text-center"
+					style="width: 150px; height: 150px; background-color: {{ user.color }}; color: #ffffff; font-size: 75px; line-height: 150px; border-radius: 50%; display: flex; justify-content: center; align-items: center;"
+				>
+					<span style="user-select: none">{{ user.name|first|upper }}</span>
+				</div>
+
+				{% else %}
+				<img
+					src="{{ user.url }}"
+					alt=""
+					style="max-width: 150px; max-height: 150px"
+					class="rounded-circle"
+				/>
+				{% endif %}
+			</div>
+
+			<div class="mt-2">
+				<h4>@{{ user.username }}</h4>
+				{% if user.role == 'admin' %}
+				<h4>Администратор</h4>
+				{% elif user.role == 'manager' %}
+				<h4>Менеджер</h4>
+				{% elif user.role == 'teacher' %}
+				<h4>Преподаватель</h4>
+				{% endif %}
+
+				<!-- Можно перейти в настройки если просматриваем свой профиль -->
+				{% if 'user_id' in session and session['user_id'] == user.id %}
+				<h4><a href="/dashboard">Настройки</a></h4>
+				{% endif %}
+			</div>
+		</div>
+
+		<!-- Если преподаватель, то загружаем отзывы и курсы -->
+		<div class="col-9">
+			<h1 class="ml-2 mt-2" style="font-weight: 550">{{ user.name }}</h1>
+			<div class="row mt-4">
+				<div class="col">
+					{% if user.role == 'teacher' %} {% include 'user_feedbacks.html' %} {% endif %}
+				</div>
+			</div>
+		</div>
 	</div>
 
-	{% else %}
+	{% endblock %}
 
-	<img src="{{ user.url }}" alt="" style="max-width: 150px; max-height: 150px" class="rounded" />
-
-	{% endif %}
-
-	<h2>{{ user.name }}</h2>
-	<h2>@{{ user.username }}</h2>
-	{% if user.role == 'admin' %}
-	<h2>Администратор</h2>
-	{% elif user.role == 'manager' %}
-	<h2>Менеджер</h2>
-	{% endif %}
-
-	<!-- Можно перейти в настройки если просматриваем свой профиль -->
-	{% if 'user_id' in session and session['user_id'] == user.id %}
-	<h2><a href="/dashboard">Настройки</a></h2>
-	{% endif %}
-
-	<!-- Если преподаватель, то загружаем отзывы и курсы -->
-	{% if user.role == 'teacher' %} {% include 'user_feedbacks.html' %} {% endif %}
+	<style>
+		.no-select {
+			user-select: none;
+		}
+	</style>
 </div>
-{% endblock %}
-
-<style>
-	.no-select {
-		user-select: none;
-	}
-</style>

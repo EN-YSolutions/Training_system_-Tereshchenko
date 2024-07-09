@@ -1,288 +1,434 @@
 {% extends 'main/base.html' %} {% block content %}
-<div class="container" style="max-width: 1440px">
-	<div>
-		{% if course.url is none %}
-		<img
-			src="/static/no_image.png"
-			alt=""
-			style="max-width: 150px; max-height: 150px"
-			class="rounded"
-		/>
-		{% else %}
-		<img src="{{ course.url }}" alt="" style="max-width: 150px; max-height: 150px" class="rounded" />
-		{% endif %}
+<div class="container mt-4 fade-in" style="max-width: 1440px; font-family: 'Roboto'">
+	<div class="row">
+		<div class="col-md-8 mb-2">
+			<div class="mt-2 ml-5">
+				<p style="color: rgb(223, 223, 223); background: rgb(40, 114, 234); border-radius: 20px; display: inline-block; padding: 5px 10px;">
+					{% if course.type == "short" %} Краткосрочный {% elif course.type == "long" %} Длительный {% elif course.type == "intensive" %} Интенсивный {% endif %}
+				</p>
+				<div class="mt-3">
+					<h1 style="font-size:64px">{{ course.title }}</h1>
+					<h2><a href="/user/{{course.author.username}}">{{ course.author.name }}</a></h2>
+					<h2>{{ course.description }}</h2>
 
-		<h1>{{ course.title }}</h1>
-		<h2><a href="/user/{{course.author.username}}">{{ course.author.name }}</a></h2>
-		<h2>{{ course.description }}</h2>
-		{% if course.type == "short" %} Краткосрочный {% elif course.type == "long" %} Длительный {% elif
-		course.type == "intensive" %} Интенсивный {% endif %}
-		<h3>
-			{% if course.price.replace(" ?", "") == "0,00" %} Бесплатно {% else %} {{
-			course.price.replace(",00 ?", "")+" РУБ" }} {% endif %}
-		</h3>
-	</div>
+					<div>
+						<h3>
+							{% if course.price.replace(" ?", "") == "0,00" %}  {% else %} {{
+							course.price.replace(",00 ?", "")+" РУБ" }} {% endif %}
+						</h3>
+						
+
+						{% if 'user_id' in session %}
+							{% if is_user_joined %}
+							<a href="/dashboard" type="button"  class="btn btn-primary custom-btn mt-3 mb-3" style="width: 350px;">
+								Просмотр курса
+							</a>
+							{% else %}
+								{% if course.price.replace(",00 ?", "").replace(" ", "")|int > 0 %}
+
+									{% if is_user_submission %}
+									<button type="button" class="btn btn-success custom-btn mt-3 mb-3" data-toggle="modal" data-target="#infoModal" style="width: 350px;">
+										Ваша заявка отправлена
+									</button>
+
+									<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title" id="infoModalLabel">Ваша заявка была отправлена</h5>
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+													</button>
+												</div>
+							
+												<div class="modal-body">
+													<p>Ваш запрос на участие в курсе был успешно отправлен на рассмотрение администратору. В ближайшее время ваша заявка будет обработана.</p>
+													<p>После подтверждения заявки будет сформирована группа с другими студентами и куратором, и вы получите дальнейшие инструкции.</p>
+													<p>Спасибо за ваш интерес к нашему курсу!</p>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									{% else %}
+									<button type="button" class="btn btn-primary custom-btn mt-3 mb-3" style="width: 350px;" data-toggle="modal" data-target="#purchaseModal">
+										Приобрести
+									</button>
 
 
-
-	<!-- Проверяем, присоединен ли пользователь к курсу -->
-	{% if is_user_joined %}
-		<button type="button" class="btn btn-success mb-2">Просмотр курса</button>
-	{% else %}
-		{% if course.price.replace(",00 ?", "").replace(" ", "")|int > 0 %}
-			<button type="button" class="btn btn-success mb-2">Купить</button>
-		{% endif %}
-
-		<form action="{{ url_for('subscribe', course_title=course.title) }}" method="post">
-			<button type="submit" class="btn btn-success mb-2">Присоединиться</button>
-		</form>
-		
-		
-	{% endif %}
-
-
-	{% if course.feedbacks %}
-	<h3>Отзывы</h3>
-	{% include 'course_feedbacks.html' %}
-	{% endif %}
-	
-	<div class="gradient-bg" style="border-radius: 20px">
-		<div class="mt-5 mb-5 ml-4 mr-4">
-			<div class="row">
-				<div class="col">
-				<h1 style="font-family: Roboto; font-size: 48px">
-					Хотите узнать подробнее о программе курса? </br><span style="font-family: Roboto; font-size: 48px; color: white"> Оставьте заявку! </span>
-				</h1>
-						<div style="font-family: Roboto; font-size: 28px; font-weight: 300;">
-							Наши консультанты помогут выбрать направление, расскажут о форматах и программах обучения
-						</div>
+									<div class="modal fade" id="purchaseModal" tabindex="-1" aria-labelledby="purchaseModalLabel" aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h5 class="modal-title" id="purchaseModalLabel">Оформление покупки</h5>
+													<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+														<span aria-hidden="true">&times;</span>
+													</button>
+												</div>
+							
+												<div class="modal-body">
+													<h4>Вы собираетесь приобрести курс <br>"{{ course.title }}"</h4>
+													<form id="purchaseForm">
+														<div class="mb-3">
+															<label for="cardNumber" class="form-label">Номер карты</label>
+															<input type="text" class="form-control" id="cardNumber" placeholder="0000 0000 0000 0000" required>
+															<div class="error-message" id="cardNumberError">Номер карты должен содержать ровно 16 цифр.</div>
+														</div>
+														<div class="mb-3">
+															<label for="cardName" class="form-label">Имя</label>
+															<input type="text" class="form-control" id="cardName" required>
+															<div class="error-message" id="cardNameError">Пожалуйста, введите имя на карте.</div>
+														</div>
+														<div class="mb-3">
+															<label for="expiryDate" class="form-label">Срок действия</label>
+															<input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" required>
+															<div class="error-message" id="expiryDateError">Пожалуйста, введите срок действия карты.</div>
+														</div>
+														<div class="mb-3">
+															<label for="cvv" class="form-label">CVV</label>
+															<input type="text" class="form-control" id="cvv" placeholder="000" required>
+															<div class="error-message" id="cvvError">Пожалуйста, введите CVV.</div>
+														</div>
+														<button type="submit" class="btn btn-primary" id="submitPayment">Оплатить</button>
+													</form>
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endif %}
+									
+									
+								{% else %}
+								<form action="{{ url_for('subscribe', course_title=course.title) }}" method="post"> 
+									<button type="submit"  class="btn btn-primary custom-btn mt-3 mb-3" style="width: 350px;">
+										Присоединиться
+									</button>
+								</form>
+								{% endif %}
+							{% endif %}
+						{% else %}
+							<a href="/login" type="button"  class="btn btn-primary custom-btn mt-3 mb-3" style="width: 350px;">
+								Присоединиться
+							</a>
+							<p class="col-md-5 text-center" style="font-size: 14px">Для того чтобы приобрести курс необходимо <br><a href="/login"> войти </a> или <a href="/register">зарегистрироваться</a></p>
+						{% endif %}
+					</div>
 				</div>
+			</div>	
+		</div>
 
-				
-				<div class="col-md-5">
-					<form id="form-request" class="border rounded text-center form-container" style="background: white;">
-						<div class="mt-5 mb-5 mr-3 ml-3">
-							<div class="form-group">
-								<input type="text" class="form-control" id="exampleInputName" placeholder="Имя">
-							</div>
-							<div class="form-group">
-								<input type="text" class="form-control" id="exampleInputPhone" placeholder="+7 (999) 999-99-99">
-							</div>
-							<div class="form-group">
-								<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Эл. почта">
-							</div>
-							<button type="submit" class="btn btn-info w-100">Отправить заявку</button>
-							<div id="error-message" style="display:none; color:red; margin-top:10px;"></div>
-							<div id="success-message" style="display:none; color:green; margin-top:10px;"></div>
-						</div>
-					</form>
-				</div>
-				
-
-			</div>
+		<div class="col-md-3 d-flex justify-content-center align-items-center">
+			{% if course.url is none %}
+			<img src="/static/no_image.png" alt="" style="width: 300px; height: 300px;" class="rounded" />
+			{% else %}
+			<img src="{{ course.url }}" alt="" style="max-width: 300px; height: 250px; max-height: 300px" class="rounded" />
+			{% endif %}
 		</div>
 	</div>
+
+	<!-- Отзывы других пользователей -->
+	<div class="ml-5">
+		{% if 'user_id' in session and is_user_joined or course.feedbacks %}
+			<h3>Отзывы</h3>
+		{% endif %}
+		{% if 'user_id' in session and is_user_joined%}
+			<form
+			id="feedbackForm"
+			action="{{ url_for('add_feedback', course_title=course.title|replace(' ', '_')) }}"
+			method="post"
+		>
+			<div class="form-group">
+				<div class="row">
+					<div class="col-auto">
+						{% if account.url is none %}
+						<div
+							class="rounded-circle text-center"
+							style="width: 65px; height: 65px; background-color: {{ account.color }}; color: #ffffff; font-size: 24px; line-height: 65px;"
+						>
+							<span style="user-select: none">{{ account.name|first|upper }}</span>
+						</div>
+						{% else %}
+						<img
+							src="{{ account.url }}"
+							alt=""
+							class="rounded-circle"
+							style="max-width: 65px; max-height: 65px"
+						/>
+						{% endif %}
+					</div>
+					<textarea class="col form-control ml-3 mr-3" id="feedbackText" name="feedback_text" rows="3" style="min-height: 100px; max-height: 150px; overflow-y: auto;"></textarea>
+				</div>
+			</div>
+			<div class="d-flex justify-content-end">
+				<div id="feedbackError" class="col-auto text-danger" style="font-size: 12px; display: none;">Пожалуйста, введите ваш отзыв перед отправкой.</div>
+				<button class="btn btn-success justify-content-end" type="button" id="submitFeedback">Отправить отзыв</button>
+			</div>
+		</form>
+		{% endif %}
+		
+		{% if course.feedbacks %}
+			{% include 'course_feedbacks.html' %}
+		{% endif %}
+	</div>
+	
+	<div class="ml-5 mb-4 mt-4 mr-5">
+
+		<h3>Ответы на вопросы</h3>
+		<div id="accordion">
+			<div class="card">
+				<div class="card-header" id="headingOne">
+					<button class="col-auto btn btn-link btn-link-custom" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+						<h3 style="font-size: 21px">Мне важно учиться на практике. Как много заложено практических заданий, как они выбраны и насколько объёмные?</h3>
+					</button>
+				</div>
+				<div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+					<div class="card-body">
+						Практика есть в каждом уроке и суммарно занимает 50-70% от всего объема программы.
+						<br>
+						<br>
+						Все задания — это реальные тестовые от работодателей, заказы с бирж фриланса или рабочие проекты наших преподавателей и наставников. Оттачивать навыки вы будете на основе того, что нужно будет делать потом в реальной работе.
+						<br>
+						На выходе с курса у вас будет 9 проектов и одна большая дипломная работа — это и будет ваше портфолио, которое поможет устроиться на работу.
+				</div>
+			</div>
+
+			
+			<div class="card">
+			<div class="card-header" id="headingTwo">
+				<h5 class="mb-0">
+				<button class="btn btn-link btn-link-custom collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+					<h3 style="font-size: 21px">Кто ведёт уроки? Какой опыт у преподавателей?</h3>
+				</button>
+				</h5>
+			</div>
+			<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+				<div class="card-body">
+					Все преподаватели, которые ведут уроки и живые лекции со студентами, — это специалисты с опытом. Они совмещают преподавание у нас с основной работой над реальными задачами.
+					<br>
+					<br>
+					Наставники, которые проверяют работы, проходят собеседования и выполняют тестовые задания. Только когда наставник подтвердит свои знания в профессии, мы допускаем его к работе со студентами и проверкам работ.
+				</div>
+			</div>
+			</div>
+			<div class="card">
+			<div class="card-header" id="headingThree">
+				<h5 class="mb-0">
+				<button class="btn btn-link btn-link-custom collapsed " data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+					<h3 style="font-size: 21px">Материалы курса останутся навсегда? У меня будет доступ к обновлениям уроков?</h3>
+				</button>
+				</h5>
+			</div>
+			<div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+				<div class="card-body">
+					Да, доступ останется навсегда. Раз в полгода мы обновляем контент курса и меняем на актуальные уроки — эти обновления тоже будут у вас в личном кабинете.
+			</div>
+			</div>
+		</div>
+		</div>
+
+	</div>
+
+</div>
+
+	{% include 'manager_course_form.html' %}
 </div>
 
 
 <script>
-    // Функция для форматирования номера телефона
-    function formatPhoneNumber(input) {
-        let phoneNumber = input.value.replace(/\D/g, ''); // Удаление всех нецифровых символов
-        let formattedPhoneNumber = '';
-
-        // Добавляем символы в зависимости от длины номера
-        if (phoneNumber.length > 0) {
-            formattedPhoneNumber += '+';
-            formattedPhoneNumber += phoneNumber.substring(0, 1); // Код страны
-        }
-        if (phoneNumber.length > 1) {
-            formattedPhoneNumber += ' (' + phoneNumber.substring(1, 4); // Открывающая скобка и следующие три цифры
-        }
-        if (phoneNumber.length > 4) {
-            formattedPhoneNumber += ') ' + phoneNumber.substring(4, 7); // Закрывающая скобка и следующие три цифры
-        }
-        if (phoneNumber.length > 7) {
-            formattedPhoneNumber += '-' + phoneNumber.substring(7, 9); // Дефис и следующие две цифры
-        }
-        if (phoneNumber.length > 9) {
-            formattedPhoneNumber += '-' + phoneNumber.substring(9, 11); // Дефис и последние две цифры
+	document.addEventListener("DOMContentLoaded", function() {
+        const container = document.querySelector(".container");
+        if (container) {
+            container.classList.add("show");
         }
 
-        // Установка отформатированного значения обратно в поле ввода
-        input.value = formattedPhoneNumber;
-    }
+        const submitFeedbackBtn = document.getElementById('submitFeedback');
+        if (submitFeedbackBtn) {
+            submitFeedbackBtn.addEventListener('click', function(event) {
+                var feedbackText = document.getElementById('feedbackText').value.trim();
+                var feedbackError = document.getElementById('feedbackError');
+                if (feedbackText === '') {
+                    feedbackError.style.display = 'block';
+                    return;
+                }
+                feedbackError.style.display = 'none';
+                document.getElementById('feedbackForm').submit();
+            });
+        }
 
-    // Получение элемента поля ввода номера телефона
-    const phoneInput = document.getElementById('exampleInputPhone');
+        function formatCardNumber(event) {
+            let input = event.target;
+            let value = input.value.replace(/\D/g, '').substring(0, 16);
+            let formattedValue = '';
+    
+            for (let i = 0; i < value.length; i++) {
+                if (i % 4 === 0 && i !== 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+    
+            input.value = formattedValue;
+        }
+    
+        function formatExpiryDate(event) {
+            let input = event.target;
+            let value = input.value.replace(/\D/g, '').substring(0, 4);
+            let formattedValue = '';
+        
+            for (let i = 0; i < value.length; i++) {
+                if (i === 2 && value.length > 2) {
+                    formattedValue += '/';
+                }
+                formattedValue += value[i];
+            }
+        
+            input.value = formattedValue;
+        }
+        
+        function formatCVV(event) {
+            let input = event.target;
+            input.value = input.value.replace(/\D/g, '').substring(0, 3);
+        }
+    
+        const cardNumberInput = document.getElementById('cardNumber');
+        const expiryDateInput = document.getElementById('expiryDate');
+        const cvvInput = document.getElementById('cvv');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', formatCardNumber);
+        }
+        if (expiryDateInput) {
+            expiryDateInput.addEventListener('input', formatExpiryDate);
+        }
+        if (cvvInput) {
+            cvvInput.addEventListener('input', formatCVV);
+        }
 
-    // Добавление слушателя события input для поля ввода номера телефона
-    phoneInput.addEventListener('input', function(event) {
-        const startPosition = this.selectionStart;
-        formatPhoneNumber(this);
-        const delta = this.value.length - startPosition;
-        this.setSelectionRange(startPosition + delta, startPosition + delta);
+        const purchaseForm = document.getElementById('purchaseForm');
+        if (purchaseForm) {
+            purchaseForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+        
+                document.querySelectorAll('.error-message').forEach(function(element) {
+                    element.style.display = 'none';
+                });
+        
+                let hasError = false;
+        
+                const cardNumber = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+                const cardName = document.getElementById('cardName').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+
+				console.log(cardName)
+        
+                if (cardNumber.length !== 16) {
+                    document.getElementById('cardNumberError').style.display = 'block';
+                    hasError = true;
+                }
+        
+                if (!cardName) {
+                    document.getElementById('cardNameError').style.display = 'block';
+                    hasError = true;
+                }
+        
+                if (expiryDate.length !== 5) {
+                    document.getElementById('expiryDateError').style.display = 'block';
+                    hasError = true;
+                }
+        
+                if (cvv.length !== 3) {
+                    document.getElementById('cvvError').style.display = 'block';
+                    hasError = true;
+                }
+        
+                if (!hasError) {
+                    fetch('{{ url_for("purchase", course_title=course.title) }}', {
+                        method: 'POST',
+                        body: JSON.stringify({ course_id: '{{ course.id }}', student_id: '{{ account.id }}' }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Ошибка при отправке запроса');
+                        }
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                    })
+                    .finally(() => {
+                        $('#purchaseModal').modal('hide');
+                        purchaseForm.reset();
+                    });
+                }
+            });
+        }
+    
+        $('#purchaseModal').on('hidden.bs.modal', function () {
+            purchaseForm.reset();
+            document.querySelectorAll('.error-message').forEach(function(element) {
+                element.style.display = 'none';
+            });
+        });
     });
-
-    // Функция для проверки корректности номера телефона
-    function validatePhone(phone) {
-        return /^\+\d{11}$/.test(phone); // Пример проверки: номер должен начинаться с плюса, затем 11 цифр
-    }
-
-    // Функция для проверки корректности адреса электронной почты
-    function validateEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    // Функция для валидации формы перед отправкой
-    function validateForm() {
-        const name = document.getElementById('exampleInputName').value.trim();
-        const phone = document.getElementById('exampleInputPhone').value.trim();
-        const email = document.getElementById('exampleInputEmail1').value.trim();
-
-        if (name === '') {
-            alert('Введите ваше имя');
-            return false;
-        }
-
-        if (!validatePhone(phone)) {
-            alert('Введите корректный номер телефона');
-            return false;
-        }
-
-        if (!validateEmail(email)) {
-            alert('Введите корректный адрес электронной почты');
-            return false;
-        }
-
-        return true; // Все проверки пройдены успешно
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-		document.getElementById('form-request').addEventListener('submit', function (event) {
-			event.preventDefault(); // Предотвращаем обычное поведение формы
-	
-			// Получаем значения полей формы
-			var name = document.getElementById('exampleInputName').value.trim();
-			var phone = document.getElementById('exampleInputPhone').value.trim();
-			var email = document.getElementById('exampleInputEmail1').value.trim();
-	
-			// Скрываем предыдущие сообщения
-			document.getElementById('error-message').style.display = 'none';
-			document.getElementById('success-message').style.display = 'none';
-	
-			// Проверка заполненности полей
-			if (!name || !phone || !email) {
-				document.getElementById('error-message').innerText = 'Все поля должны быть заполнены';
-				document.getElementById('error-message').style.display = 'block';
-				return;
-			}
-	
-			// Формируем объект FormData
-			var formData = new FormData();
-			formData.append('name', name);
-			formData.append('phone', phone);
-			formData.append('email', email);
-	
-			// Отправляем запрос на сервер
-			fetch('/submit_request', {
-				method: 'POST',
-				body: formData
-			})
-			.then(response => {
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				return response.json();
-			})
-			.then(data => {
-				// Обработка ответа от сервера
-				if (data.message) {
-					if (data.message.includes('успешно')) {
-						document.getElementById('success-message').innerText = data.message;
-						document.getElementById('success-message').style.display = 'block';
-					} else {
-						document.getElementById('error-message').innerText = data.message;
-						document.getElementById('error-message').style.display = 'block';
-					}
-				}
-			})
-			.catch(error => {
-				console.error('There has been a problem with your fetch operation:', error);
-				document.getElementById('error-message').innerText = data.message;
-				document.getElementById('error-message').style.display = 'block';
-			});
-		});
-	});
 </script>
 
 
 <style>
-	.no-select {
-		user-select: none;
+	.fade-in {
+		opacity: 0;
+		transition: opacity 350ms ease-in;
 	}
-
-	/* Стили для различных цветов карточек */
-	.card-color {
-		background-color: #eaeaea;
-	}
-
-	/* Устанавливаем фиксированный размер для карусели */
-
-	/* Стили для текста отзыва */
-	.feedback-text {
-		line-height: 1.5;
-		overflow: hidden; /* Обрезаем текст, который не помещается */
-		position: relative; /* Устанавливаем позицию для псевдоэлемента */
-		height: 520px;
-		max-height: 520px; /* Максимальная высота текста, после которой будет эффект градиента */
-	}
-
-	/* Псевдоэлемент для градиента */
-	.feedback-text::after {
-		content: ""; /* Добавляем пустое содержимое для псевдоэлемента */
-		position: absolute; /* Позиционируем псевдоэлемент */
-		bottom: 0; /* Располагаем псевдоэлемент внизу */
-		left: 0;
-		right: 0;
-		height: 30px; /* Высота для градиента */
-		background: linear-gradient(transparent, #eaeaea); /* Градиент от прозрачного к белому */
+	
+	.fade-in.show {
+		opacity: 1;
 	}
 
 	.custom-btn {
 		font-family: Roboto;
-		font-size: 32px;
-		color: rgba(255, 208, 0, 1);
+		font-size: 26px;
 		letter-spacing: 1px;
-		line-height: 48px;
-		border: 1px solid rgba(255, 208, 0, 1);
-		border-radius: 40px;
-		background: transparent;
+		border-radius: 10px;
 		transition: all 0.3s ease 0s;
 	}
 
-	.custom-btn:hover {
-		color: #fff;
-		background: rgba(255, 208, 0, 1);
-		border: 1px solid rgba(255, 208, 0, 1);
+	.error-message {
+		color: red;
+		font-size: 0.875em;
+		display: none;
 	}
 
-    
-    .gradient-bg {
-        background: linear-gradient(to bottom right, #5ae0ee, #3abf45); /* Используем цвета вашего градиента */
-        padding: 20px; /* Добавляем отступы для контента */
-    }
+	.btn-link-custom {
+		color: black;
+		text-decoration: none;
+	}
 
-	.form-container {
-		background: white;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Горизонтальное смещение, вертикальное смещение, размытие, цвет */
-    }
 
-	.course-card .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
-    }
+	.btn-link-custom:hover {
+		color: rgb(74, 170, 90);
+		text-decoration: none;
+	}
 </style>
 
 
 {% endblock %}
+
+	<!-- Добавление отзыва -->
+	<form
+		id="feedbackForm"
+		action="{{ url_for('add_feedback', course_title=course.title|replace(' ', '_')) }}"
+		method="post"
+	>
+		<textarea
+			id="feedbackText"
+			name="feedback_text"
+			rows="4"
+			cols="50"
+			resize="none"
+			required
+			placeholder="Введите ваш отзыв здесь"
+		></textarea>
+		<button type="submit" class="btn btn-secondary">Отправить отзыв</button>
+	</form>

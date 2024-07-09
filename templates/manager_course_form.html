@@ -1,0 +1,180 @@
+<div class="gradient-bg" style="border-radius: 20px">
+    <div class="mt-5 mb-5 ml-4 mr-4">
+        <div class="row">
+            <div class="col">
+            <h1 style="font-family: Roboto; font-size: 48px">
+                Хотите узнать подробнее о программе курса? </br><span style="font-family: Roboto; font-size: 48px; color: white"> Оставьте заявку! </span>
+            </h1>
+                    <div style="font-family: Roboto; font-size: 28px; font-weight: 300;">
+                        Наши консультанты помогут выбрать направление, расскажут о форматах и программах обучения
+                    </div>
+            </div>
+
+            
+            <div class="col-md-5">
+                <form id="form-request" class="border rounded text-center form-container" style="background: white;">
+                    <div class="mt-5 mb-5 mr-3 ml-3">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="exampleInputName" placeholder="Имя">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="exampleInputPhone" placeholder="+7 (999) 999-99-99">
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Эл. почта">
+                        </div>
+                        <button type="submit" class="btn btn-info w-100">Отправить заявку</button>
+                        <div id="error-message" style="display:none; color:red; margin-top:10px;"></div>
+                        <div id="success-message" style="display:none; color:green; margin-top:10px;"></div>
+                    </div>
+                </form>
+            </div>
+            
+
+        </div>
+    </div>
+</div>
+
+<script>
+        // Функция для форматирования номера телефона
+        function formatPhoneNumber(input) {
+            let phoneNumber = input.value.replace(/\D/g, ''); // Удаление всех нецифровых символов
+            let formattedPhoneNumber = '';
+    
+            // Добавляем символы в зависимости от длины номера
+            if (phoneNumber.length > 0) {
+                formattedPhoneNumber += '+';
+                formattedPhoneNumber += phoneNumber.substring(0, 1); // Код страны
+            }
+            if (phoneNumber.length > 1) {
+                formattedPhoneNumber += ' (' + phoneNumber.substring(1, 4); // Открывающая скобка и следующие три цифры
+            }
+            if (phoneNumber.length > 4) {
+                formattedPhoneNumber += ') ' + phoneNumber.substring(4, 7); // Закрывающая скобка и следующие три цифры
+            }
+            if (phoneNumber.length > 7) {
+                formattedPhoneNumber += '-' + phoneNumber.substring(7, 9); // Дефис и следующие две цифры
+            }
+            if (phoneNumber.length > 9) {
+                formattedPhoneNumber += '-' + phoneNumber.substring(9, 11); // Дефис и последние две цифры
+            }
+    
+            // Установка отформатированного значения обратно в поле ввода
+            input.value = formattedPhoneNumber;
+        }
+    
+        // Получение элемента поля ввода номера телефона
+        const phoneInput = document.getElementById('exampleInputPhone');
+    
+        // Добавление слушателя события input для поля ввода номера телефона
+        phoneInput.addEventListener('input', function(event) {
+            const startPosition = this.selectionStart;
+            formatPhoneNumber(this);
+            const delta = this.value.length - startPosition;
+            this.setSelectionRange(startPosition + delta, startPosition + delta);
+        });
+    
+        // Функция для проверки корректности номера телефона
+        function validatePhone(phone) {
+            return /^\+\d{11}$/.test(phone); // Пример проверки: номер должен начинаться с плюса, затем 11 цифр
+        }
+    
+        // Функция для проверки корректности адреса электронной почты
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+    
+        // Функция для валидации формы перед отправкой
+        function validateForm() {
+            const name = document.getElementById('exampleInputName').value.trim();
+            const phone = document.getElementById('exampleInputPhone').value.trim();
+            const email = document.getElementById('exampleInputEmail1').value.trim();
+    
+            if (name === '') {
+                alert('Введите ваше имя');
+                return false;
+            }
+    
+            if (!validatePhone(phone)) {
+                alert('Введите корректный номер телефона');
+                return false;
+            }
+    
+            if (!validateEmail(email)) {
+                alert('Введите корректный адрес электронной почты');
+                return false;
+            }
+    
+            return true; // Все проверки пройдены успешно
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('form-request').addEventListener('submit', function (event) {
+                event.preventDefault(); // Предотвращаем обычное поведение формы
+        
+                // Получаем значения полей формы
+                var name = document.getElementById('exampleInputName').value.trim();
+                var phone = document.getElementById('exampleInputPhone').value.trim();
+                var email = document.getElementById('exampleInputEmail1').value.trim();
+        
+                // Скрываем предыдущие сообщения
+                document.getElementById('error-message').style.display = 'none';
+                document.getElementById('success-message').style.display = 'none';
+        
+                // Проверка заполненности полей
+                if (!name || !phone || !email) {
+                    document.getElementById('error-message').innerText = 'Все поля должны быть заполнены';
+                    document.getElementById('error-message').style.display = 'block';
+                    return;
+                }
+        
+                // Формируем объект FormData
+                var formData = new FormData();
+                formData.append('name', name);
+                formData.append('phone', phone);
+                formData.append('email', email);
+        
+                // Отправляем запрос на сервер
+                fetch('/submit_request', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Обработка ответа от сервера
+                    if (data.message) {
+                        if (data.message.includes('успешно')) {
+                            document.getElementById('success-message').innerText = data.message;
+                            document.getElementById('success-message').style.display = 'block';
+                        } else {
+                            document.getElementById('error-message').innerText = data.message;
+                            document.getElementById('error-message').style.display = 'block';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                    document.getElementById('error-message').innerText = data.message;
+                    document.getElementById('error-message').style.display = 'block';
+                });
+            });
+        });
+    
+</script>
+
+<style>
+    .gradient-bg {
+        background: linear-gradient(to bottom right, #5ae0ee, #3abf45); /* Используем цвета вашего градиента */
+        padding: 20px; /* Добавляем отступы для контента */
+    }
+
+	.form-container {
+		background: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); /* Горизонтальное смещение, вертикальное смещение, размытие, цвет */
+    }
+</style>

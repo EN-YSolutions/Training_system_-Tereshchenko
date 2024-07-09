@@ -1,7 +1,7 @@
 {% extends 'main/base.html' %} {% block content %}
 <div class="container" style="padding: 25px">
 	<div class="row">
-		<div class="col">
+		<div class="col-md-3">
 			<!-- Форма фильтрации -->
 			<form id="filter-form" method="POST">
 				<div class="form-group">
@@ -29,6 +29,8 @@
 					/>
 				</div>
 				<button type="button" class="btn btn-success mb-2" onclick="freeButton()">Бесплатно</button>
+
+				<h4 class="mb-3 mt-2">Длительность</h4>
 				<div class="form-group form-check">
 					<input type="checkbox" class="form-check-input" id="short" name="type" value="short" {% if
 					'short' in filter_types %}checked{% endif %} onchange="submitForm()" >

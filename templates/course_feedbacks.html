@@ -1,5 +1,5 @@
-<div class="container">
-	{% for feedback in course.feedbacks %}
+<div>
+	{% for feedback in course.feedbacks|sort(attribute='date', reverse=True) %}
 	<div class="row align-items-center mb-3">
 		<!-- Аватарка или цвет -->
 		<div class="col-auto">
@@ -23,8 +23,8 @@
 		<!-- Информация -->
 		<div class="col mt-auto">
 			<p>
-				<a href="/user/{{ feedback.user.username }}">{{ feedback.user.name }}</a> {{
-				feedback.date.strftime('%Y.%m.%d %H:%M:%S') }}
+				<a href="/user/{{ feedback.user.username }}">{{ feedback.user.name }}</a>
+				<span class="feedback-time" data-time="{{ feedback.date }}">{{ feedback.date }}</span>
 			</p>
 			<p>{{ feedback.text }}</p>
 		</div>
@@ -37,3 +37,64 @@
 		user-select: none;
 	}
 </style>
+
+<script>
+	function getRussianPlural(number, one, two, five) {
+		let n = Math.abs(number)
+		n %= 100
+		if (n >= 5 && n <= 20) {
+			return five
+		}
+		n %= 10
+		if (n === 1) {
+			return one
+		}
+		if (n >= 2 && n <= 4) {
+			return two
+		}
+		return five
+	}
+
+	function timeAgo(dateString) {
+		const now = new Date()
+		const past = new Date(dateString)
+		const seconds = Math.floor((now - past) / 1000)
+		const minutes = Math.floor(seconds / 60)
+		const hours = Math.floor(minutes / 60)
+		const days = Math.floor(hours / 24)
+		const months = Math.floor(days / 30)
+		const years = Math.floor(days / 365)
+
+		if (years > 0) {
+			return `${years} ${getRussianPlural(years, "год назад", "года назад", "лет назад")}`
+		} else if (months > 0) {
+			return `${months} ${getRussianPlural(months, "месяц назад", "месяца назад", "месяцев назад")}`
+		} else if (days > 0) {
+			return `${days} ${getRussianPlural(days, "день назад", "дня назад", "дней назад")}`
+		} else if (hours > 0) {
+			return `${hours} ${getRussianPlural(hours, "час назад", "часа назад", "часов назад")}`
+		} else if (minutes > 0) {
+			return `${minutes} ${getRussianPlural(
+				minutes,
+				"минуту назад",
+				"минуты назад",
+				"минут назад"
+			)}`
+		} else {
+			return `${seconds} ${getRussianPlural(
+				seconds,
+				"секунду назад",
+				"секунды назад",
+				"секунд назад"
+			)}`
+		}
+	}
+
+	document.addEventListener("DOMContentLoaded", function () {
+		const timeElements = document.querySelectorAll(".feedback-time")
+		timeElements.forEach((element) => {
+			const timeString = element.getAttribute("data-time")
+			element.textContent = timeAgo(timeString)
+		})
+	})
+</script>

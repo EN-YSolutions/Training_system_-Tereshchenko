@@ -1,7 +1,17 @@
 {% extends 'main/base.html' %} {% block content %}
 
 <div class="my-5 container" style="max-width: 1440px">
-	{% if chat %} {% elif admin %} {% elif dashboard %} {% endif %}
+	<h1 style="font-size: 84px; font-weight: 1000" class="text-center">503</h1>
+	<h2 class="text-center" style="color: rgb(104, 104, 104)">
+		Сервис не доступен! Модуль нуждается в интеграции с модулем
+		<span style="font-weight: bold">
+			{% if chat %} чата {% elif admin %} администратора {% elif dashboard %} личного кабинета {%
+			elif teacher %} куратора {% endif %}
+		</span>
+	</h2>
+	<h2 class="text-center" style="color: rgb(104, 104, 104)">
+		Пожалуйста вернитесь на <a href="/">главную страницу</a>
+	</h2>
 </div>
 
 {% endblock %}

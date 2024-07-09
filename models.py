@@ -3,8 +3,14 @@ from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import ARRAY
 import uuid
 from datetime import datetime
+import pytz
 
 db = SQLAlchemy()
+
+local_timezone = pytz.timezone('Europe/Moscow')
+def get_local_time():
+    return datetime.now(local_timezone)
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -38,14 +44,15 @@ class Course_Feedback(db.Model):
     course_id = db.Column(db.String(36), db.ForeignKey('courses.id'), nullable=False)
     author_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date = db.Column(db.DateTime, default=lambda: datetime.now(local_timezone), nullable=False)
+
 
 class Test(db.Model):
     __tablename__ = 'tests'
     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     course_id = db.Column(db.String(36), db.ForeignKey('courses.id'), nullable=False)
     title = db.Column(db.String(255), nullable=False)
-    date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    date = db.Column(db.DateTime, default=lambda: datetime.now(local_timezone), nullable=False)
     questions = db.Column(db.String(256), nullable=True)
     time = db.Column(db.String(256), nullable=True)
     interval = db.Column(db.String(256), nullable=True)
@@ -66,13 +73,22 @@ class Group_Members(db.Model):
     __tablename__ = 'groups_members'
     group_id = db.Column(db.String(36), db.ForeignKey('groups.id'), primary_key=True, nullable=False)
     student_id = db.Column(db.String(36), db.ForeignKey('users.id'), primary_key=True, nullable=False)
+
     # Связь с таблицей Group
     group = db.relationship('Group', back_populates='members')
+
+class Submission(db.Model):
+    __tablename__ = 'submissions'
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    student_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    course_id = db.Column(db.String(36), db.ForeignKey('courses.id'), nullable=False)
+    status = db.Column(db.String(50), nullable=False, default="pending")
+    date = db.Column(db.DateTime, default=lambda: datetime.now(local_timezone), nullable=False)
 
 class Request(db.Model):
     __tablename__ = 'requests'
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date = db.Column(db.DateTime, nullable=False, default=get_local_time())
     name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
